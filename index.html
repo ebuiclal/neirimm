@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Seni Seviyorum 💐</title>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Great+Vibes&family=Caveat:wght@700&family=Parisienne&family=Tangerine:wght@700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #050505;
+            height: 100vh;
+            overflow: hidden;
+            font-family: 'Dancing Script', cursive;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+
+        /* Arka plan efektleri */
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(ellipse at center, rgba(255, 215, 0, 0.05) 0%, transparent 70%);
+            z-index: 0;
+        }
+
+        body::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(ellipse at 30% 20%, rgba(255, 107, 157, 0.05) 0%, transparent 50%);
+            z-index: 0;
+        }
+
+        /* Canvas */
+        #pixelCanvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+
+        /* Pixel yazı - NEİRİMMMM */
+        .pixel-title {
+            position: absolute;
+            top: 12%;
+            left: 50%;
+            transform: translateX(-50%);
+            font-family: 'Press Start 2P', monospace;
+            font-size: 50px;
+            color: #fff;
+            letter-spacing: 12px;
+            z-index: 10;
+            text-align: center;
+            white-space: nowrap;
+            background: linear-gradient(180deg, #fff, #e0e0e0);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0 0 15px rgba(255, 255, 255, 0.5));
+            animation: pixelFloat 3s ease-in-out infinite;
+            transition: all 0.5s ease;
+        }
+
+        @keyframes pixelFloat {
+            0%, 100% { transform: translateX(-50%) translateY(0); }
+            50% { transform: translateX(-50%) translateY(-10px); }
+        }
+
+        .pixel-title::after {
+            content: '❤️';
+            font-size: 40px;
+            margin-left: 15px;
+            filter: drop-shadow(0 0 15px rgba(255, 0, 0, 0.8));
+            animation: heartBeat 1.5s ease-in-out infinite;
+        }
+
+        @keyframes heartBeat {
+            0%, 100% { transform: scale(1); }
+            25% { transform: scale(1.3); }
+            40% { transform: scale(1); }
+            60% { transform: scale(1.2); }
+        }
+
+        /* El yazısı - Seni seviyorum */
+        .love-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-family: 'Parisienne', cursive;
+            font-size: 90px;
+            color: #fff;
+            cursor: pointer;
+            z-index: 10;
+            text-align: center;
+            text-shadow: 
+                0 0 30px rgba(255, 255, 255, 0.6),
+                0 0 60px rgba(255, 215, 0, 0.4),
+                0 0 90px rgba(255, 107, 157, 0.3);
+            transition: all 1s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            animation: loveFadeIn 3s ease;
+            letter-spacing: 3px;
+            line-height: 1.2;
+        }
+
+        @keyframes loveFadeIn {
+            from {
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(0.3) rotate(-15deg);
+                filter: blur(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(1) rotate(0);
+                filter: blur(0);
+            }
+        }
+
+        .love-text:hover {
+            transform: translate(-50%, -50%) scale(1.1);
+            text-shadow: 
+                0 0 50px rgba(255, 255, 255, 1),
+                0 0 100px rgba(255, 215, 0, 0.8),
+                0 0 150px rgba(255, 107, 157, 0.6);
+        }
+
+        .love-text.animate {
+            animation: loveZoom 2s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+
+        @keyframes loveZoom {
+            0% {
+                transform: translate(-50%, -50%) scale(1);
+                filter: brightness(1);
+            }
+            50% {
+                transform: translate(-50%, -50%) scale(1.5);
+                filter: brightness(2);
+            }
+            100% {
+                transform: translate(-50%, -50%) scale(1);
+                filter: brightness(1);
+            }
+        }
+
+        /* Mektup Modal */
+        .letter-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(5, 5, 5, 0.95);
+            backdrop-filter: blur(20px);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            transition: opacity 1s ease;
+        }
+
+        .letter-modal.active {
+            display: flex;
+            opacity: 1;
+        }
+
+        .letter-content {
+            background: linear-gradient(145deg, #1a1a2e, #2d2d3d, #1a1a2e);
+            border: 1px solid rgba(255, 215, 0, 0.3);
+            border-radius: 30px;
+            padding: 70px;
+            max-width: 750px;
+            width: 90%;
+            text-align: center;
+            position: relative;
+            animation: letterIn 1.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            box-shadow: 
+                0 0 60px rgba(255, 215, 0, 0.2),
+                0 0 120px rgba(255, 107, 157, 0.1),
+                inset 0 0 40px rgba(255, 255, 255, 0.03);
+        }
+
+        @keyframes letterIn {
+            from {
+                opacity: 0;
+                transform: scale(0.3) rotate(-15deg) translateY(50px);
+                filter: blur(20px);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1) rotate(0) translateY(0);
+                filter: blur(0);
+            }
+        }
+
+        .letter-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #ffd700;
+            font-size: 22px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.4s;
+        }
+
+        .letter-close:hover {
+            background: rgba(255, 215, 0, 0.2);
+            transform: scale(1.1) rotate(90deg);
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
+        }
+
+        .letter-header {
+            font-family: 'Great Vibes', cursive;
+            font-size: 50px;
+            color: #ffd700;
+            margin-bottom: 40px;
+            letter-spacing: 3px;
+            text-shadow: 
+                0 0 30px rgba(255, 215, 0, 0.6),
+                0 0 60px rgba(255, 215, 0, 0.3);
+            animation: headerGlow 3s ease-in-out infinite;
+        }
+
+        @keyframes headerGlow {
+            0%, 100% { text-shadow: 0 0 30px rgba(255, 215, 0, 0.6), 0 0 60px rgba(255, 215, 0, 0.3); }
+            50% { text-shadow: 0 0 50px rgba(255, 215, 0, 0.8), 0 0 100px rgba(255, 215, 0, 0.5); }
+        }
+
+        .letter-text {
+            font-family: 'Tangerine', cursive;
+            font-size: 45px;
+            color: #fff;
+            line-height: 1.4;
+            margin-bottom: 40px;
+            letter-spacing: 2px;
+            text-shadow: 0 0 20px rgba(255, 255, 255, 0.4);
+        }
+
+        .letter-signature {
+            font-family: 'Great Vibes', cursive;
+            font-size: 50px;
+            color: #ff6b9d;
+            margin-top: 30px;
+            text-shadow: 
+                0 0 30px rgba(255, 107, 157, 0.6),
+                0 0 60px rgba(255, 107, 157, 0.3);
+            animation: signaturePulse 2s ease-in-out infinite;
+        }
+
+        @keyframes signaturePulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        /* Çiçek pixel konfigürasyonu */
+        .flower-pixel {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            border-radius: 2px;
+            animation: flowerFall linear infinite;
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.5);
+        }
+
+        @keyframes flowerFall {
+            0% {
+                transform: translateY(-100vh) rotate(0deg);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(110vh) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        /* Kalp yağmuru */
+        .hearts-fall {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 2;
+            overflow: hidden;
+        }
+
+        .heart-pixel {
+            position: absolute;
+            color: #ffd700;
+            font-size: 20px;
+            animation: heartFall linear infinite;
+            opacity: 0;
+        }
+
+        @keyframes heartFall {
+            0% {
+                transform: translateY(-100px) rotate(0deg) scale(1);
+                opacity: 0;
+            }
+            20% {
+                opacity: 0.8;
+            }
+            100% {
+                transform: translateY(110vh) rotate(360deg) scale(0.5);
+                opacity: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Canvas -->
+    <canvas id="pixelCanvas"></canvas>
+
+    <!-- Pixel Yazı - NEİRİMMMM -->
+    <div class="pixel-title" id="pixelTitle">NEİRİMMMM</div>
+
+    <!-- El Yazısı - Seni Seviyorum -->
+    <div class="love-text" id="loveText" onclick="handleLoveClick()">Seni seviyorum</div>
+
+    <!-- Kalp Yağmuru -->
+    <div class="hearts-fall" id="heartsFall"></div>
+
+    <!-- Mektup Modal -->
+    <div class="letter-modal" id="letterModal">
+        <div class="letter-content">
+            <div class="letter-close" onclick="closeLetter()">✕</div>
+            <div class="letter-header">Sevgili Eşim,</div>
+            <div class="letter-text">
+                Bugüne kadar iyi ve kötü günlerimde<br>
+                benimle olduğun için sana çok teşekkür ederim.<br>
+                Rabbim bizi hiç ayırmasın.<br>
+                Sevgilimmmm ❤️
+            </div>
+            <div class="letter-signature">Sonsuza dek seninim 💍</div>
+        </div>
+    </div>
+
+    <script>
+        // Canvas ayarları
+        const canvas = document.getElementById('pixelCanvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        // Kasımpatı pixel konfigürasyonu - çok daha sık
+        const flowers = [
+            // Üst sıra
+            { x: 0.15, y: 0.65, color: '#ffd700' },
+            { x: 0.25, y: 0.60, color: '#ff6b9d' },
+            { x: 0.35, y: 0.55, color: '#fff' },
+            { x: 0.45, y: 0.60, color: '#ff8c00' },
+            { x: 0.55, y: 0.55, color: '#ffd700' },
+            { x: 0.65, y: 0.60, color: '#ff6b9d' },
+            { x: 0.75, y: 0.55, color: '#fff' },
+            { x: 0.85, y: 0.60, color: '#ff8c00' },
+            // Orta sıra
+            { x: 0.18, y: 0.70, color: '#fff' },
+            { x: 0.28, y: 0.68, color: '#ffd700' },
+            { x: 0.38, y: 0.65, color: '#ff6b9d' },
+            { x: 0.48, y: 0.70, color: '#ff8c00' },
+            { x: 0.58, y: 0.65, color: '#fff' },
+            { x: 0.68, y: 0.68, color: '#ffd700' },
+            { x: 0.78, y: 0.70, color: '#ff6b9d' },
+            { x: 0.88, y: 0.68, color: '#ff8c00' },
+            // Alt sıra
+            { x: 0.20, y: 0.75, color: '#ffd700' },
+            { x: 0.30, y: 0.72, color: '#fff' },
+            { x: 0.40, y: 0.78, color: '#ff8c00' },
+            { x: 0.50, y: 0.75, color: '#ffd700' },
+            { x: 0.60, y: 0.72, color: '#fff' },
+            { x: 0.70, y: 0.78, color: '#ff6b9d' },
+            { x: 0.80, y: 0.75, color: '#ffd700' },
+            { x: 0.90, y: 0.72, color: '#fff' },
+            // Ekstra yoğunluk
+            { x: 0.12, y: 0.68, color: '#ff6b9d' },
+            { x: 0.22, y: 0.66, color: '#ff8c00' },
+            { x: 0.32, y: 0.62, color: '#fff' },
+            { x: 0.42, y: 0.67, color: '#ffd700' },
+            { x: 0.52, y: 0.62, color: '#ff6b9d' },
+            { x: 0.62, y: 0.67, color: '#fff' },
+            { x: 0.72, y: 0.62, color: '#ff8c00' },
+            { x: 0.82, y: 0.66, color: '#ffd700' },
+            { x: 0.92, y: 0.68, color: '#fff' },
+            // En alt
+            { x: 0.15, y: 0.80, color: '#fff' },
+            { x: 0.25, y: 0.82, color: '#ffd700' },
+            { x: 0.35, y: 0.80, color: '#ff6b9d' },
+            { x: 0.45, y: 0.82, color: '#fff' },
+            { x: 0.55, y: 0.80, color: '#ff8c00' },
+            { x: 0.65, y: 0.82, color: '#ffd700' },
+            { x: 0.75, y: 0.80, color: '#fff' },
+            { x: 0.85, y: 0.82, color: '#ff6b9d' },
+            { x: 0.95, y: 0.80, color: '#ffd700' }
+        ];
+
+        // Pixel çiçek deseni çiz
+        function drawPixelFlower(x, y, color) {
+            const canvasWidth = canvas.width;
+            const canvasHeight = canvas.height;
+            const pixelX = x * canvasWidth;
+            const pixelY = y * canvasHeight;
+            const size = 12;
+
+            // Kasımpatı deseni - merkez ve yapraklar
+            const pixels = [
+                // Merkez
+                [0, 0], [1, 0], [-1, 0], [0, 1], [0, -1],
+                // İç yapraklar
+                [2, 0], [-2, 0], [0, 2], [0, -2],
+                [1, 1], [-1, 1], [1, -1], [-1, -1],
+                [2, 1], [-2, 1], [2, -1], [-2, -1],
+                [1, 2], [-1, 2], [1, -2], [-1, -2],
+                // Orta yapraklar
+                [3, 0], [-3, 0], [0, 3], [0, -3],
+                [2, 2], [-2, 2], [2, -2], [-2, -2],
+                [3, 1], [-3, 1], [3, -1], [-3, -1],
+                [1, 3], [-1, 3], [1, -3], [-1, -3],
+                // Dış yapraklar
+                [4, 0], [-4, 0], [0, 4], [0, -4],
+                [3, 2], [-3, 2], [3, -2], [-3, -2],
+                [2, 3], [-2, 3], [2, -3], [-2, -3],
+                [4, 1], [-4, 1], [4, -1], [-4, -1],
+                [1, 4], [-1, 4], [1, -4], [-1, -4]
+            ];
+
+            // Pixel'leri çiz
+            pixels.forEach(pixel => {
+                ctx.fillStyle = color;
+                ctx.fillRect(pixelX + pixel[0] * size, pixelY + pixel[1] * size, size - 2, size - 2);
+            });
+        }
+
+        // Buketi çiz
+        function drawBouquet() {
+            // Saplar
+            flowers.forEach(flower => {
+                const x = flower.x * canvas.width;
+                const y = flower.y * canvas.height;
+
+                ctx.strokeStyle = '#1a5c2a';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.moveTo(x, y);
+                ctx.lineTo(x, y + 150);
+                ctx.stroke();
+            });
+
+            // Yapraklar
+            flowers.forEach(flower => {
+                const x = flower.x * canvas.width;
+                const y = flower.y * canvas.height;
+
+                ctx.fillStyle = '#2e7d32';
+                for (let i = 0; i < 15; i++) {
+                    ctx.fillRect(x - 15 + i * 2, y + 80 + Math.sin(i) * 15, 3, 3);
+                }
+            });
+
+            // Çiçekleri çiz
+            flowers.forEach(flower => {
+                drawPixelFlower(flower.x, flower.y, flower.color);
+            });
+        }
+
+        // Pixel yağmuru
+        let fallingPixels = [];
+
+        function createFallingPixel() {
+            const colors = ['#ffd700', '#ff6b9d', '#fff', '#ff8c00'];
+            const x = Math.random() * canvas.width;
+            const y = -30;
+            const speed = 1 + Math.random() * 3;
+            const color = colors[Math.floor(Math.random() * colors.length)];
+
+            fallingPixels.push({ x, y, speed, color });
+        }
+
+        function animateFallingPixels() {
+            // Temizle
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Arka plan
+            ctx.fillStyle = '#050505';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Pixel yağmuru
+            if (Math.random() < 0.3) {
+                for (let i = 0; i < 5; i++) {
+                    createFallingPixel();
+                }
+            }
+
+            fallingPixels.forEach(pixel => {
+                pixel.y += pixel.speed;
+                ctx.fillStyle = pixel.color;
+                ctx.shadowBlur = 8;
+                ctx.shadowColor = pixel.color;
+                ctx.fillRect(pixel.x, pixel.y, 5, 5);
+            });
+
+            fallingPixels = fallingPixels.filter(pixel => pixel.y < canvas.height + 50);
+
+            // Buketi çiz
+            drawBouquet();
+
+            requestAnimationFrame(animateFallingPixels);
+        }
+
+        // Kalp yağmuru
+        function createHeartsFall() {
+            const heartsContainer = document.getElementById('heartsFall');
+            for (let i = 0; i < 30; i++) {
+                const heart = document.createElement('div');
+                heart.className = 'heart-pixel';
+                heart.textContent = '❤️';
+                heart.style.left = Math.random() * 100 + '%';
+                heart.style.animationDuration = (5 + Math.random() * 5) + 's';
+                heart.style.animationDelay = Math.random() * 8 + 's';
+                heart.style.fontSize = (15 + Math.random() * 25) + 'px';
+                heartsContainer.appendChild(heart);
+            }
+        }
+
+        // Mektup açma animasyonu
+        function handleLoveClick() {
+            const loveText = document.getElementById('loveText');
+            const modal = document.getElementById('letterModal');
+
+            // Yazıyı büyüt ve ışıldat
+            loveText.classList.add('animate');
+
+            // Kısa bir gecikme ile mektubu aç
+            setTimeout(() => {
+                modal.style.display = 'flex';
+                setTimeout(() => {
+                    modal.classList.add('active');
+                }, 100);
+            }, 2000); // 2 saniye sonra mektup açılır
+        }
+
+        // Mektubu kapat
+        function closeLetter() {
+            const modal = document.getElementById('letterModal');
+            modal.classList.remove('active');
+            setTimeout(() => {
+                modal.style.display = 'none';
+            }, 1000);
+        }
+
+        // Pixel yazıyı oluştur (pixel karelerle)
+        function createPixelTitle() {
+            const title = document.getElementById('pixelTitle');
+            title.style.display = 'block';
+            
+            // Pixel fontunu uygula
+            title.style.fontFamily = "'Press Start 2P', monospace";
+            title.style.fontSize = '45px';
+            title.style.color = '#fff';
+            title.style.textShadow = '3px 3px 0 rgba(255,255,255,0.3)';
+            title.style.letterSpacing = '15px';
+        }
+
+        // Sayfa yüklendiğinde
+        window.onload = function() {
+            // Canvas'ı temizle
+            ctx.fillStyle = '#050505';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Pixel yazıyı oluştur
+            createPixelTitle();
+
+            // Buketi çiz
+            drawBouquet();
+
+            // Pixel yağmur başlat
+            animateFallingPixels();
+
+            // Kalp yağmuru başlat
+            createHeartsFall();
+        };
+
+        // Pencere boyutlandığında
+        window.addEventListener('resize', function() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            drawBouquet();
+        });
+    </script>
+</body>
+</html>
